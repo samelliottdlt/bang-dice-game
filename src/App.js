@@ -1,55 +1,52 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import {useState} from 'react';
 import './App.css';
 
+import Dice from './Dice';
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max)).toString();
+}
+
+function generateDiceState(size) {
+  return Array.from({length: size}).reduce((accumulator, current, index) => {
+    return {
+      ...accumulator,
+      [index]: {
+        selected: false,
+        type: '2'
+      }
+    };
+  }, {})
+}
+
 function App() {
-  const [date, setDate] = useState(null);
-  useEffect(() => {
-    async function getDate() {
-      const res = await fetch('/api/date');
-      const newDate = await res.text();
-      setDate(newDate);
-    }
-    getDate();
-  }, []);
+  const amountOfDice = 5;
+  const [dice, setDice] = useState(generateDiceState(amountOfDice));
+
   return (
     <main>
-      <h1>Create React App + Go API</h1>
-      <h2>
-        Deployed with{' '}
-        <a
-          href="https://zeit.co/docs"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          ZEIT Now
-        </a>
-        !
-      </h2>
-      <p>
-        <a
-          href="https://github.com/zeit/now/tree/master/examples/create-react-app"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          This project
-        </a>{' '}
-        was bootstrapped with{' '}
-        <a href="https://facebook.github.io/create-react-app/">
-          Create React App
-        </a>{' '}
-        and contains three directories, <code>/public</code> for static assets,{' '}
-        <code>/src</code> for components and content, and <code>/api</code>{' '}
-        which contains a serverless <a href="https://golang.org/">Go</a>{' '}
-        function. See{' '}
-        <a href="/api/date">
-          <code>api/date</code> for the Date API with Go
-        </a>
-        .
-      </p>
-      <br />
-      <h2>The date according to Go is:</h2>
-      <p>{date ? date : 'Loading date...'}</p>
+      {
+        Array.from({length: amountOfDice}).map((value, index) =>
+          <Dice key={index} type={dice[index].type} selected={dice[index].selected} click={() => setDice({
+            ...dice,
+            [index]: {
+              ...dice[index],
+              selected: !dice[index].selected
+            }
+          })}></Dice>
+        )
+      }
+
+      <input type='button' className='roll' value='ROLL' onClick={() => {
+        setDice({
+          ...dice,
+          ...Object.fromEntries(Object.entries(dice).filter(([index, value]) => value.selected).map(([index, value]) => ([index, {
+            ...value,
+            type: getRandomInt(5)
+          }])))
+        })
+      }}></input>
     </main>
   );
 }
