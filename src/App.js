@@ -43,6 +43,7 @@ function App() {
           ...dice,
           ...Object.fromEntries(Object.entries(dice).filter(([index, value]) => value.selected).map(([index, value]) => ([index, {
             ...value,
+            selected: false,
             type: getRandomInt(5)
           }])))
         })
